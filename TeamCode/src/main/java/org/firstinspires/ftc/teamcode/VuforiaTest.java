@@ -5,6 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -68,6 +73,8 @@ public class VuforiaTest extends LinearOpMode {
             boolean isElementVisible= false;
             String visibleElementName = null;
             OpenGLMatrix position = null;
+            VectorF translation;
+            Orientation rotation;
 
             for (VuforiaTrackable trackableElement : trackableElements) {
                 if (((VuforiaTrackableDefaultListener)trackableElement.getListener()).isVisible()) {
@@ -80,7 +87,10 @@ public class VuforiaTest extends LinearOpMode {
             if (isElementVisible) {
                 telemetry.addData("Most Visible Target", visibleElementName);
                 if (position != null) {
-                    telemetry.addData("Pose", position.formatAsTransform());
+                    translation = position.getTranslation();
+                    rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+                    telemetry.addData("Target Translation","%s,%s,%s",translation.get(0),translation.get(1),translation.get(3));
+                    telemetry.addData("Target Rotation","%s,%s,%s",rotation.firstAngle,rotation.secondAngle,rotation.thirdAngle);
                 }
             }
             else {
