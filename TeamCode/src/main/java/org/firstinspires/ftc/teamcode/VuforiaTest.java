@@ -75,13 +75,15 @@ public class VuforiaTest extends LinearOpMode {
             }
 
             if (isElementVisible) {
-                telemetry.clear();
                 telemetry.addData("Most Visible Target", visibleElementName);
             }
             else {
-                telemetry.clear();
+
                 telemetry.addData("Most Visible Target", "none");
             }
+
+            telemetry.update();
+            telemetry.clear();
 
             isElementVisible = false;
         }
