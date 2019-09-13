@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -66,16 +67,21 @@ public class VuforiaTest extends LinearOpMode {
         while(!isStopRequested()) {
             boolean isElementVisible= false;
             String visibleElementName = null;
+            OpenGLMatrix position = null;
 
             for (VuforiaTrackable trackableElement : trackableElements) {
                 if (((VuforiaTrackableDefaultListener)trackableElement.getListener()).isVisible()) {
                     isElementVisible = true;
                     visibleElementName = trackableElement.getName();
+                    position = ((VuforiaTrackableDefaultListener)trackableElement.getListener()).getPose();
                 }
             }
 
             if (isElementVisible) {
                 telemetry.addData("Most Visible Target", visibleElementName);
+                if (position != null) {
+                    telemetry.addData("Pose", position.formatAsTransform());
+                }
             }
             else {
                 telemetry.addData("Most Visible Target", "none");
