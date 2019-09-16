@@ -17,10 +17,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.lang.Math;
 @TeleOp
 public class VuforiaTest extends LinearOpMode {
-    private static final String VUFORIA_KEY = " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+    private static final String VUFORIA_KEY = "AfcHR0j/////AAABmfed/GCooE4+rJdSirhUBQVIWvgEZ1O83QNRD2QssWhg80bd+b3b7U/Q9EZJkStsXbOopP3SGyYEJjWzQ9TRkw8kdvYQz9CHB6M0aT6vAWJrkJnQnSxCjC7CLW53/IXfRR9qdK40wVw+RPu5xBST5bNHVbOxD8iuCx0ePgjfIrs+yC0r4VASI6c5vfyfkFixlV36nvNQjHwM/+Eyk8s10uzKTNwDmoVtEB/A5fBH+kqtG8r7KjPYtlVlhIn9dfLCgFdG5xAdAnBfeRvdFTfk1UqkKgvrQLdcU9WFkV24kegrjTPPigwiTB8RhlXLEdF8lhw3lcwg2Gb5Nev5D1PqujovEmxrJlkM5dU5HL/f44cs";
     private VuforiaLocalizer vuforia;
 
     @Override
@@ -85,13 +85,11 @@ public class VuforiaTest extends LinearOpMode {
             }
 
             if (isElementVisible) {
-                telemetry.addData("Most Visible Target", visibleElementName);
-                if (position != null) {
-                    translation = position.getTranslation();
-                    rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-                    telemetry.addData("Target Translation","%s,%s,%s",translation.get(0),translation.get(1),translation.get(3));
-                    telemetry.addData("Target Rotation","%s,%s,%s",rotation.firstAngle,rotation.secondAngle,rotation.thirdAngle);
-                }
+                telemetry.addData("Most Visible Target", visibleElementName);;
+                translation = position.getTranslation();
+                rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+                telemetry.addData("Target Translation","%s,%s,%s",Math.floor(translation.get(0)),Math.floor(translation.get(1)),Math.floor(translation.get(2)));
+                telemetry.addData("Target Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
             }
             else {
                 telemetry.addData("Most Visible Target", "none");
