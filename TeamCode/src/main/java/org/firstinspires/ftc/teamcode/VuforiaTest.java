@@ -25,7 +25,6 @@ public class VuforiaTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
