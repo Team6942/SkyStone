@@ -1,34 +1,42 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
 
-@Autonomous
+@TeleOp
 public class DriveTest extends LinearOpMode {
     DcMotor backLeft;
     DcMotor backRight;
+    DcMotor midShift;
+    double leftPower;
+    double rightPower;
+    double middlePower;
+    double drive;
+    double turn;
     @Override
     public void runOpMode() {
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
+        midShift = hardwareMap.get(DcMotor.class,"midShift");
+
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        midShift.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
-        backLeft.setPower(1);
-        backRight.setPower(1);
-        sleep(1000);
-        backLeft.setPower(0);
-        backRight.setPower(0);
-        sleep(1000);
-        for (float i=0;i<=1;i+=0.01){
-            backLeft.setPower(i);
-            backRight.setPower(i);
-            sleep(10);
-        }
-        sleep(1000);
-        for (float i=1;i>=0;i-=0.01){
-            backLeft.setPower(i);
-            backRight.setPower(i);
-            sleep(10);
+        while(!isStopRequested()) {
+            drive = -gamepad1.left_stick_y;
+            turn = gamepad1.right_stick_y;
+            middlePower = gamepad1.right_stick_x;
+
+            leftPower = Range.clip(drive + turn,-1,1);
+            rightPower = Range.clip(drive - turn,-1,1);
+
+            backLeft.setPower(leftPower);
+            backRight.setPower(rightPower);
+            midShift.setPower(middlePower);
         }
     }
 }
