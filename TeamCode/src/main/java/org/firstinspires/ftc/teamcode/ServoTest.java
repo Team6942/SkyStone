@@ -7,15 +7,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous
 public class ServoTest extends LinearOpMode {
-    Servo testServo;
+    Servo clawServo;
     @Override
     public void runOpMode() {
-        testServo = hardwareMap.get(Servo.class, "testServo");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
+        clawServo.setPosition(0);
         waitForStart();
-        testServo.setPosition(0);
-        for (float i=0;i<=0;i+=0.2) {
-            testServo.setPosition(1);
-            sleep(500);
-        }
+        clawServo.setPosition(.5);
+        sleep(1000);
+
     }
 }

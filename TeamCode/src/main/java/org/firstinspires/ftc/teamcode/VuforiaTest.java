@@ -84,7 +84,7 @@ public class VuforiaTest extends LinearOpMode {
             }
 
             if (isElementVisible) {
-                telemetry.addData("Most Visible Target", visibleElementName);;
+                telemetry.addData("Most Visible Target", visibleElementName);
                 translation = position.getTranslation();
                 rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
                 telemetry.addData("Target Translation","%s,%s,%s",Math.floor(translation.get(0)),Math.floor(translation.get(1)),Math.floor(translation.get(2)));
