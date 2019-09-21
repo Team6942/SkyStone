@@ -5,7 +5,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @TeleOp
-public class BlinkinCode extends LinearOpMode{
+public class BlinkinTest extends LinearOpMode{
     private RevBlinkinLedDriver blinkin;
 
     public void runOpMode() {
