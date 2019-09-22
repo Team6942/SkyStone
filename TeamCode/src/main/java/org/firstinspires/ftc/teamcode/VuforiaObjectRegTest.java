@@ -81,6 +81,7 @@ public class VuforiaObjectRegTest extends LinearOpMode {
                     isElementVisible = true;
                     visibleElementName = trackableElement.getName();
                     position = ((VuforiaTrackableDefaultListener)trackableElement.getListener()).getPose();
+                    break;
                 }
             }
 
