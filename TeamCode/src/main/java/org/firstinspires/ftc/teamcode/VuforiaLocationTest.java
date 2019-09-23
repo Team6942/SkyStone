@@ -43,15 +43,14 @@ public class VuforiaLocationTest extends LinearOpMode {
     // constants for perimeter targets
     private final float halfField = 72 * mmPerInch;
     private final float quadField  = 36 * mmPerInch;
-    // TODO: fix camera location and rotation on the robot
     // phone rotation
     private final float phoneXRotate = 0;
     private final float phoneYRotate = -90;
     private final float phoneZRotate = 0;
     // phone location on robot
     private final float cameraForwardDisplacement = 9.0f * mmPerInch;
-    private final float cameraVerticalDisplacement = 2.0f * mmPerInch;
-    private final float cameraCenterDisplacement = 0;
+    private final float cameraVerticalDisplacement = 6.0f * mmPerInch;
+    private final float cameraCenterDisplacement = 8.0f;
     // drive objects
     private DcMotor backLeft;
     private DcMotor backRight;
