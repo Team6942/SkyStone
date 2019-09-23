@@ -31,10 +31,12 @@ public class GamepadTest extends LinearOpMode {
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
         midShift.setDirection(DcMotorSimple.Direction.FORWARD);
+
         waitForStart();
         while(!isStopRequested()) {
             drive = gamepad1.right_stick_y;
             leftStick = gamepad1.left_stick_x;
+
             if(gamepad1.right_bumper) {
                 middlePower =  leftStick;
                 turn = 0;
@@ -43,12 +45,14 @@ public class GamepadTest extends LinearOpMode {
                 turn = leftStick;
                 middlePower = 0;
             }
+
             if (gamepad1.a) {
                 clawServo.setPosition(0.7);
             }
-            ; if(gamepad1.b) {
+            else if (gamepad1.b) {
                 clawServo.setPosition(0.3);
             }
+
             leftPower = Range.clip(drive + turn,-1,1);
             rightPower = Range.clip(drive - turn,-1,1);
 
@@ -56,7 +60,6 @@ public class GamepadTest extends LinearOpMode {
             backRight.setPower(rightPower);
             midShift.setPower(middlePower);
         }
-
-        }
     }
+}
 
