@@ -212,10 +212,12 @@ public class VuforiaLocationTest extends LinearOpMode {
 
             if (isElementVisible) {
                 telemetry.addData("Most Visible Target", visibleElementName);
-                translation = lastPosition.getTranslation();
-                rotation = Orientation.getOrientation(lastPosition, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-                telemetry.addData("Robot Translation","%s,%s,%s",Math.floor(translation.get(0)),Math.floor(translation.get(1)),Math.floor(translation.get(2)));
-                telemetry.addData("Robot Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
+                if (lastPosition != null) {
+                    translation = lastPosition.getTranslation();
+                    rotation = Orientation.getOrientation(lastPosition, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+                    telemetry.addData("Robot Last Translation","%s,%s,%s",Math.floor(translation.get(0)),Math.floor(translation.get(1)),Math.floor(translation.get(2)));
+                    telemetry.addData("Robot Last Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
+                }
             }
             else {
                 telemetry.addData("Most Visible Target", "none");
