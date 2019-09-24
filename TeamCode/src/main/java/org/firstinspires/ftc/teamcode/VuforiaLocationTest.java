@@ -179,7 +179,7 @@ public class VuforiaLocationTest extends LinearOpMode {
             boolean isElementVisible= false;
             String visibleElementName = null;
             OpenGLMatrix lastPosition = null;
-            OpenGLMatrix position = null;
+            OpenGLMatrix position;
             VectorF translation;
             Orientation rotation;
             // drive code
