@@ -1,21 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
 
-
-@Autonomous
-public class DriveEncoderTest extends LinearOpMode {
+@TeleOp
+public class DriveEncoderMeasure extends LinearOpMode {
     DcMotor backLeft;
     DcMotor backRight;
-    DcMotor midShift;
-    int leftTargetPosition;
-    int rightTargetPosition;
+    private double leftPower;
+    private double rightPower;
+    private double drive;
+    private double turn;
     @Override
-    public void runOpMode() {
+    public void runOpMode()  {
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -25,30 +25,21 @@ public class DriveEncoderTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
-        backLeft.setTargetPosition(1120);
-        backRight.setTargetPosition(1120);
 
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (opModeIsActive()) {
+            drive = gamepad1.right_stick_y;
+            turn = gamepad1.left_stick_x;
 
-        backRight.setPower(.1);
-        backLeft.setPower(.1);
+            leftPower = Range.clip(drive + turn,-1,1);
+            rightPower = Range.clip(drive - turn,-1,1);
 
-        while (opModeIsActive() && backLeft.isBusy() && backRight.isBusy()) {
+            backLeft.setPower(leftPower);
+            backRight.setPower(rightPower);
+
             telemetry.addData("Path2",  "%7d :%7d",
                     backLeft.getCurrentPosition(),
                     backRight.getCurrentPosition());
             telemetry.update();
         }
-
-        backLeft.setPower(0);
-        backRight.setPower(0);
-
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        sleep(1000);
     }
 }
-
-
