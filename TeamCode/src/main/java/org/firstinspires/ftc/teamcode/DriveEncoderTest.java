@@ -25,8 +25,8 @@ public class DriveEncoderTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
-        backLeft.setTargetPosition(1120);
-        backRight.setTargetPosition(1120);
+        backLeft.setTargetPosition(560);
+        backRight.setTargetPosition(560);
 
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -46,7 +46,6 @@ public class DriveEncoderTest extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         sleep(1000);
     }
 }

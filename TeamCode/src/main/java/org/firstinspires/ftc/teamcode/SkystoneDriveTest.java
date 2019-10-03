@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -17,8 +20,7 @@ public class SkystoneDriveTest extends LinearOpMode {
     DcMotor backLeft;
     DcMotor backRight;
     DcMotor midShift;
-    int leftTargetPosition;
-    int rightTargetPosition;
+    private double horizontalAngleToObject;
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
@@ -45,21 +47,24 @@ public class SkystoneDriveTest extends LinearOpMode {
 
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        midShift = hardwareMap.get(DcMotor.class,"midShift");
+
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        midShift.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
-        backLeft.setTargetPosition(1120);
-        backRight.setTargetPosition(1120);
+        backLeft.setTargetPosition(560);
+        backRight.setTargetPosition(560);
 
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        backRight.setPower(.1);
-        backLeft.setPower(.1);
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
 
         while (opModeIsActive() && backLeft.isBusy() && backRight.isBusy()) {
             telemetry.addData("Path2",  "%7d :%7d",
@@ -75,9 +80,15 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (opModeIsActive()) {
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
+            Recognition skystoneObject;
+            List<Recognition> Recognitions = tfod.getUpdatedRecognitions();
+            if (Recognitions != null) {
+                if (Recognitions.size() > 0) {
+                    skystoneObject = Recognitions.get(0);
+                    horizontalAngleToObject = skystoneObject.estimateAngleToObject(AngleUnit.DEGREES);
+                    telemetry.addData("horizontalAngleToObject", horizontalAngleToObject);
+                    telemetry.update();
+                }
             }
         }
     }
