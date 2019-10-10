@@ -24,14 +24,14 @@ public class LiftTest extends LinearOpMode {
         liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
         while (!isStopRequested()) {
-            liftPower = gamepad1.left_stick_y;
-            liftLeft.setPower(liftPower);
-            liftRight.setPower(liftPower);
+        liftPower = gamepad1.left_stick_y;
+        liftLeft.setPower(liftPower);
+        liftRight.setPower(liftPower);
 
-            telemetry.addData("Position",  "%7d :%7d",
-                    liftLeft.getCurrentPosition(),
-                    liftRight.getCurrentPosition());
-            telemetry.update();
+        telemetry.addData("Position",  "%7d :%7d",
+        liftLeft.getCurrentPosition(),
+        liftRight.getCurrentPosition());
+        telemetry.update();
         }
     }
 }
