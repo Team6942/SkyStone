@@ -57,6 +57,7 @@ public class SkystoneDriveTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
+        tfod.activate();
         backLeft.setTargetPosition(560);
         backRight.setTargetPosition(560);
 
@@ -80,16 +81,14 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (opModeIsActive()) {
-            Recognition skystoneObject;
             List<Recognition> Recognitions = tfod.getUpdatedRecognitions();
             if (Recognitions != null) {
-                if (Recognitions.size() > 0) {
-                    skystoneObject = Recognitions.get(0);
-                    horizontalAngleToObject = skystoneObject.estimateAngleToObject(AngleUnit.DEGREES);
-                    telemetry.addData("horizontalAngleToObject", horizontalAngleToObject);
-                    telemetry.update();
+                for (Recognition r: Recognitions) {
+                    r.estimateAngleToObject(AngleUnit.DEGREES);
+                    telemetry.addData("horizontalAngleToObject",  r.estimateAngleToObject(AngleUnit.DEGREES));
                 }
             }
+            telemetry.update();
         }
     }
 }
