@@ -27,7 +27,7 @@ public class SkystoneDriveTest extends LinearOpMode {
     private static final String VUFORIA_KEY = "AfcHR0j/////AAABmfed/GCooE4+rJdSirhUBQVIWvgEZ1O83QNRD2QssWhg80bd+b3b7U/Q9EZJkStsXbOopP3SGyYEJjWzQ9TRkw8kdvYQz9CHB6M0aT6vAWJrkJnQnSxCjC7CLW53/IXfRR9qdK40wVw+RPu5xBST5bNHVbOxD8iuCx0ePgjfIrs+yC0r4VASI6c5vfyfkFixlV36nvNQjHwM/+Eyk8s10uzKTNwDmoVtEB/A5fBH+kqtG8r7KjPYtlVlhIn9dfLCgFdG5xAdAnBfeRvdFTfk1UqkKgvrQLdcU9WFkV24kegrjTPPigwiTB8RhlXLEdF8lhw3lcwg2Gb5Nev5D1PqujovEmxrJlkM5dU5HL/f44cs";
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
-
+    private List<Recognition> Recognitions;
 
     @Override
     public void runOpMode() {
@@ -56,8 +56,10 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         waitForStart();
         tfod.activate();
+
         backLeft.setTargetPosition(560);
         backRight.setTargetPosition(560);
 
@@ -81,14 +83,15 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (opModeIsActive()) {
-            List<Recognition> Recognitions = tfod.getUpdatedRecognitions();
-            if (Recognitions != null) {
-                for (Recognition r: Recognitions) {
-                    r.estimateAngleToObject(AngleUnit.DEGREES);
-                    telemetry.addData("horizontalAngleToObject",  r.estimateAngleToObject(AngleUnit.DEGREES));
-                }
-            }
+            getCurrentAngleToObject();
             telemetry.update();
+        }
+    }
+    public void getCurrentAngleToObject() {
+        Recognitions = tfod.getUpdatedRecognitions();
+        if (Recognitions != null && !Recognitions.isEmpty()) {
+            Recognition skystone = Recognitions.get(0);
+            telemetry.addData("Angle to skystone", skystone.estimateAngleToObject(AngleUnit.DEGREES));
         }
     }
 }
