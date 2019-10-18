@@ -20,7 +20,6 @@ public class SkystoneDriveTest extends LinearOpMode {
     DcMotor backLeft;
     DcMotor backRight;
     DcMotor midShift;
-    private double horizontalAngleToObject;
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
@@ -60,8 +59,8 @@ public class SkystoneDriveTest extends LinearOpMode {
         waitForStart();
         tfod.activate();
 
-        backLeft.setTargetPosition(560);
-        backRight.setTargetPosition(560);
+        backLeft.setTargetPosition(300);
+        backRight.setTargetPosition(300);
 
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -82,17 +81,26 @@ public class SkystoneDriveTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        while (opModeIsActive()) {
-            getCurrentAngleToObject();
-            telemetry.update();
+        while (!isStopRequested()) {
+            while (getCurrentAngleToObject() == 0) {
+                midShift.setPower(-.5);
+            }
+            while (getCurrentAngleToObject() >=1) {
+                midShift.setPower(-.5);
+                telemetry.update();
+            }
+            midShift.setPower(0);
+            stop();
         }
     }
-    public void getCurrentAngleToObject() {
+    public double getCurrentAngleToObject() {
         Recognitions = tfod.getUpdatedRecognitions();
         if (Recognitions != null && !Recognitions.isEmpty()) {
             Recognition skystone = Recognitions.get(0);
             telemetry.addData("Angle to skystone", skystone.estimateAngleToObject(AngleUnit.DEGREES));
+            return skystone.estimateAngleToObject(AngleUnit.DEGREES);
         }
+        return 0;
     }
 }
 
