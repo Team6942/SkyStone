@@ -59,8 +59,8 @@ public class SkystoneDriveTest extends LinearOpMode {
         waitForStart();
         tfod.activate();
 
-        backLeft.setTargetPosition(300);
-        backRight.setTargetPosition(300);
+        backLeft.setTargetPosition(200);
+        backRight.setTargetPosition(200);
 
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -81,17 +81,24 @@ public class SkystoneDriveTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        while (!isStopRequested()) {
-            while (getCurrentAngleToObject() == 0) {
-                midShift.setPower(-.5);
-            }
-            while (getCurrentAngleToObject() >=1) {
-                midShift.setPower(-.5);
-                telemetry.update();
-            }
-            midShift.setPower(0);
-            stop();
+        while (getCurrentAngleToObject() == 0) {
+            midShift.setPower(-.4);
         }
+        while (getCurrentAngleToObject() >=1) {
+            midShift.setPower(-.4);
+            telemetry.update();
+        }
+        midShift.setPower(0);
+
+        backLeft.setTargetPosition(700);
+        backRight.setTargetPosition(700);
+
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
+
     }
     public double getCurrentAngleToObject() {
         Recognitions = tfod.getUpdatedRecognitions();
