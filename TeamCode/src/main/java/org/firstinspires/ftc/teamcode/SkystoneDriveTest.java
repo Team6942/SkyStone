@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.kauailabs.navx.ftc.navXPIDController;
+import com.kauailabs.navx.ftc.AHRS;
 
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -27,6 +29,18 @@ public class SkystoneDriveTest extends LinearOpMode {
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
     private List<Recognition> Recognitions;
+    private final int NAVX_DIM_I2C_PORT = 0;
+    private AHRS navx_device;
+    private navXPIDController yawPIDController;
+
+    private final double TARGET_ANGLE_DEGREES = 90.0;
+    private final double TOLERANCE_DEGREES = 2.0;
+    private final double MIN_MOTOR_OUTPUT_VALUE = -1.0;
+    private final double MAX_MOTOR_OUTPUT_VALUE = 1.0;
+    private final double YAW_PID_P = 0.005;
+    private final double YAW_PID_I = 0.0;
+    private final double YAW_PID_D = 0.0;
+    private final int DEVICE_TIMEOUT_MS = 500;
 
     @Override
     public void runOpMode() {
@@ -44,6 +58,17 @@ public class SkystoneDriveTest extends LinearOpMode {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
+        navx_device = AHRS.getInstance(hardwareMap.deviceInterfaceModule.get("dim"),
+                NAVX_DIM_I2C_PORT,
+                AHRS.DeviceDataType.kProcessedData);
+        yawPIDController = new navXPIDController( navx_device,
+                navXPIDController.navXTimestampedDataSource.YAW);
+        yawPIDController.setSetpoint(TARGET_ANGLE_DEGREES);
+        yawPIDController.setContinuous(true);
+        yawPIDController.setOutputRange(MIN_MOTOR_OUTPUT_VALUE, MAX_MOTOR_OUTPUT_VALUE);
+        yawPIDController.setPID(YAW_PID_P, YAW_PID_I, YAW_PID_D);
+        yawPIDController.enable(true);
+
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
@@ -57,6 +82,7 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
+        navXPIDController.PIDResult yawPIDResult = new navXPIDController.PIDResult();
         tfod.activate();
 
         backLeft.setTargetPosition(200);
@@ -96,8 +122,25 @@ public class SkystoneDriveTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        backRight.setPower(.25);
-        backLeft.setPower(.25);
+        while  (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive()) {
+            backRight.setPower(.25);
+            backLeft.setPower(.25);
+        }
+
+        backRight.setPower(0);
+        backLeft.setPower(0);
+
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while(opModeIsActive()) {
+            double output = yawPIDResult.getOutput();
+            if (output != 0) {
+                telemetry.clear();
+                telemetry.addData("yaw value", output);
+            }
+            telemetry.update();
+        }
 
     }
     public double getCurrentAngleToObject() {
