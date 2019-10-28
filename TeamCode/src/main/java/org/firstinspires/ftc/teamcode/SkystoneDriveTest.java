@@ -78,12 +78,14 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (getCurrentAngleToObject() == 0) {
+            backLeft.setPower(degreesToPower(getYaw()));
             midShift.setPower(-.4);
         }
         while (getCurrentAngleToObject() >= 1) {
+            backLeft.setPower(degreesToPower(getYaw()));
             midShift.setPower(-.4);
-            telemetry.update();
         }
+
         midShift.setPower(0);
 
         backLeft.setTargetPosition(700);
@@ -92,7 +94,7 @@ public class SkystoneDriveTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while  (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive()) {
+        while (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive()) {
             backRight.setPower(.25);
             backLeft.setPower(.25);
         }
@@ -135,9 +137,12 @@ public class SkystoneDriveTest extends LinearOpMode {
         }
         return 0;
     }
-    private float getHeading() {
+    private float getYaw() {
         Orientation orientation = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return orientation.firstAngle;
+    }
+    private double degreesToPower(float degrees) {
+        return (degrees + 180) / (360) * (2) -1;
     }
 }
 
