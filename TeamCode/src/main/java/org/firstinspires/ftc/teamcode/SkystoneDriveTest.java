@@ -122,7 +122,7 @@ public class SkystoneDriveTest extends LinearOpMode {
 
     }
     private void initNavx() {
-        navx_device = AHRS.getInstance(hardwareMap.deviceInterfaceModule.get("dim"),
+        navx_device = AHRS.getInstance(hardwareMap.deviceInterfaceModule.get("navx"),
                 NAVX_DIM_I2C_PORT,
                 AHRS.DeviceDataType.kProcessedData);
         yawPIDController = new navXPIDController( navx_device,
