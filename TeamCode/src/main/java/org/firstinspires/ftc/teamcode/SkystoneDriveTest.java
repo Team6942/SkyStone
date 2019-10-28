@@ -41,25 +41,12 @@ public class SkystoneDriveTest extends LinearOpMode {
     private final double YAW_PID_P = 0.005;
     private final double YAW_PID_I = 0.0;
     private final double YAW_PID_D = 0.0;
+    private final double TOLERANCE_DEGREES = 2.0;
 
     @Override
     public void runOpMode() {
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = 0.8;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-
         initNavx();
-
+        initTFOD();
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
@@ -101,7 +88,7 @@ public class SkystoneDriveTest extends LinearOpMode {
         while (getCurrentAngleToObject() == 0) {
             midShift.setPower(-.4);
         }
-        while (getCurrentAngleToObject() >=1) {
+        while (getCurrentAngleToObject() >= 1) {
             midShift.setPower(-.4);
             telemetry.update();
         }
@@ -142,9 +129,25 @@ public class SkystoneDriveTest extends LinearOpMode {
                 navXPIDController.navXTimestampedDataSource.YAW);
         yawPIDController.setSetpoint(TARGET_ANGLE_DEGREES);
         yawPIDController.setContinuous(true);
+        yawPIDController.setTolerance(navXPIDController.ToleranceType.ABSOLUTE, TOLERANCE_DEGREES);
         yawPIDController.setOutputRange(MIN_MOTOR_OUTPUT_VALUE, MAX_MOTOR_OUTPUT_VALUE);
         yawPIDController.setPID(YAW_PID_P, YAW_PID_I, YAW_PID_D);
         yawPIDController.enable(true);
+    }
+    private void initTFOD() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CameraDirection.BACK;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.8;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
     private double getCurrentAngleToObject() {
         Recognitions = tfod.getUpdatedRecognitions();
