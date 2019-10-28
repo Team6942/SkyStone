@@ -1,17 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.kauailabs.navx.ftc.navXPIDController;
-import com.kauailabs.navx.ftc.AHRS;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -30,18 +31,9 @@ public class SkystoneDriveTest extends LinearOpMode {
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
     private List<Recognition> Recognitions;
-    // navx objects
-    private final int NAVX_DIM_I2C_PORT = 0;
-    private AHRS navx_device;
-    private navXPIDController yawPIDController;
-    // navx vars
-    private final double TARGET_ANGLE_DEGREES = 90.0;
-    private final double MIN_MOTOR_OUTPUT_VALUE = -1.0;
-    private final double MAX_MOTOR_OUTPUT_VALUE = 1.0;
-    private final double YAW_PID_P = 0.005;
-    private final double YAW_PID_I = 0.0;
-    private final double YAW_PID_D = 0.0;
-    private final double TOLERANCE_DEGREES = 2.0;
+    // navx declaration and vars
+    private IntegratingGyroscope gyro;
+    private NavxMicroNavigationSensor navxMicro;
 
     @Override
     public void runOpMode() {
@@ -60,7 +52,7 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
-        navXPIDController.PIDResult yawPIDResult = new navXPIDController.PIDResult();
+        telemetry.log().clear();
         tfod.activate();
 
         backLeft.setTargetPosition(200);
@@ -110,29 +102,14 @@ public class SkystoneDriveTest extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        while(opModeIsActive()) {
-            double output = yawPIDResult.getOutput();
-            if (output != 0) {
-                telemetry.clear();
-                telemetry.addData("yaw value", output);
-            }
-            telemetry.update();
-        }
-
     }
     private void initNavx() {
-        navx_device = AHRS.getInstance(hardwareMap.deviceInterfaceModule.get("dim"),
-                NAVX_DIM_I2C_PORT,
-                AHRS.DeviceDataType.kProcessedData);
-        yawPIDController = new navXPIDController( navx_device,
-                navXPIDController.navXTimestampedDataSource.YAW);
-        yawPIDController.setSetpoint(TARGET_ANGLE_DEGREES);
-        yawPIDController.setContinuous(true);
-        yawPIDController.setTolerance(navXPIDController.ToleranceType.ABSOLUTE, TOLERANCE_DEGREES);
-        yawPIDController.setOutputRange(MIN_MOTOR_OUTPUT_VALUE, MAX_MOTOR_OUTPUT_VALUE);
-        yawPIDController.setPID(YAW_PID_P, YAW_PID_I, YAW_PID_D);
-        yawPIDController.enable(true);
+        navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+        gyro = (IntegratingGyroscope)navxMicro;
+        telemetry.log().add("do not move robot navx is calibrating");
+        while (navxMicro.isCalibrating());
+        telemetry.log().clear();
+        telemetry.log().add("done calibrating");
     }
     private void initTFOD() {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
@@ -157,6 +134,10 @@ public class SkystoneDriveTest extends LinearOpMode {
             return skystone.estimateAngleToObject(AngleUnit.DEGREES);
         }
         return 0;
+    }
+    private float getHeading() {
+        Orientation orientation = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return orientation.firstAngle;
     }
 }
 
