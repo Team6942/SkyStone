@@ -19,11 +19,12 @@ public class GamepadTest extends LinearOpMode {
     double leftPower;
     double rightPower;
     double middlePower;
-    double clawPower;
+    double liftPower;
     double drive;
     double turn;
     double ls;
     double rt;
+    int clawPosition;
 
     @Override
     public void runOpMode() {
@@ -45,9 +46,21 @@ public class GamepadTest extends LinearOpMode {
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        liftLeft.setPower(0);
+        liftRight.setPower(0);
+        liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        claw.setDirection(DcMotorSimple.Direction.FORWARD);
         claw.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         claw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        claw.setDirection(DcMotorSimple.Direction.FORWARD);
+        claw.setTargetPosition(0);
+        claw.setPower(1);
+        claw.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -55,18 +68,27 @@ public class GamepadTest extends LinearOpMode {
 
         waitForStart();
         while(!isStopRequested()) {
+            telemetry.addData("Position",  "%7d",
+                    claw.getCurrentPosition());
+            telemetry.update();
             rt = gamepad1.right_trigger;
             turn = gamepad1.right_stick_x;
+            liftPower = gamepad1.right_stick_y;
+
+/*            if (gamepad1.a && clawPosition >= -300) {
+                clawPosition -= 10;
+                sleep(5);
+            }
+            else if (gamepad1.b && clawPosition <= 0) {
+                clawPosition += 10;
+                sleep(5);
+            }*/
 
             if (gamepad1.a) {
-                clawPower = rt;
+                claw.setTargetPosition(-300);
             }
             else if (gamepad1.b) {
-                clawPower = -rt;
-            }
-            else
-            {
-                clawPower = 0;
+                claw.setTargetPosition(0);
             }
 
             if (gamepad1.dpad_up) {
@@ -92,8 +114,9 @@ public class GamepadTest extends LinearOpMode {
             backLeft.setPower(leftPower);
             backRight.setPower(rightPower);
             midShift.setPower(middlePower);
+            liftLeft.setPower(liftPower);
+            liftRight.setPower(liftPower);
 
-            claw.setPower(clawPower);
         }
     }
 }

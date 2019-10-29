@@ -78,12 +78,11 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (getCurrentAngleToObject() == 0) {
-            backLeft.setPower(degreesToPower(getYaw()));
             midShift.setPower(-.4);
         }
         while (getCurrentAngleToObject() >= 1) {
-            backLeft.setPower(degreesToPower(getYaw()));
             midShift.setPower(-.4);
+            telemetry.update();
         }
 
         midShift.setPower(0);
