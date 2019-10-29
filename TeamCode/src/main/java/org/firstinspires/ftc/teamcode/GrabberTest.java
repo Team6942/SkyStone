@@ -11,7 +11,7 @@ public class GrabberTest extends LinearOpMode {
     double grabberPower;
     @Override
     public void runOpMode() {
-        grabberMotor = hardwareMap.get(DcMotor.class, "grabberMotor");
+        grabberMotor = hardwareMap.get(DcMotor.class, "claw");
         grabberMotor.setPower(0);
         grabberMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         grabberMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

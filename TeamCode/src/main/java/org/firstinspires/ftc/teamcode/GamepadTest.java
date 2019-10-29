@@ -19,11 +19,11 @@ public class GamepadTest extends LinearOpMode {
     double leftPower;
     double rightPower;
     double middlePower;
+    double clawPower;
     double drive;
     double turn;
-    double leftStick;
-    double liftPower;
-    double clawPower;
+    double ls;
+    double rt;
 
     @Override
     public void runOpMode() {
@@ -55,16 +55,34 @@ public class GamepadTest extends LinearOpMode {
 
         waitForStart();
         while(!isStopRequested()) {
-            drive = gamepad1.right_stick_y;
-            leftStick = gamepad1.left_stick_x;
-            clawPower = gamepad1.left_stick_y;
+            rt = gamepad1.right_trigger;
+            turn = gamepad1.right_stick_x;
 
-            if(gamepad1.right_bumper) {
-                middlePower =  leftStick;
-                turn = 0;
+            if (gamepad1.a) {
+                clawPower = rt;
+            }
+            else if (gamepad1.b) {
+                clawPower = -rt;
+            }
+            else
+            {
+                clawPower = 0;
+            }
+
+            if (gamepad1.dpad_up) {
+                drive = rt;
+            }
+            else if (gamepad1.dpad_down) {
+                drive = -rt;
+            }
+            else if (gamepad1.dpad_right) {
+                middlePower = rt;
+            }
+            else if (gamepad1.dpad_left) {
+                middlePower = -rt;
             }
             else {
-                turn = leftStick;
+                drive = 0;
                 middlePower = 0;
             }
 
