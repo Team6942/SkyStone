@@ -23,7 +23,9 @@ public class DriveTest extends LinearOpMode {
     Servo clawServo;
     @Override
     public void runOpMode() {
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        backLeft = hardwareMap.get(
+                DcMotor.class,
+                "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
         clawServo= hardwareMap.get(Servo.class, "clawServo");

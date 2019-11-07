@@ -50,7 +50,6 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         waitForStart();
         telemetry.log().clear();
         tfod.activate();
@@ -103,6 +102,26 @@ public class SkystoneDriveTest extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        /*backLeft.setTargetPosition(-200);
+        backRight.setTargetPosition(-200);
+
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
+
+        while (opModeIsActive() && backLeft.isBusy() && backRight.isBusy()) {
+            telemetry.addData("Path2", "%7d :%7d",
+                    backLeft.getCurrentPosition(),
+                    backRight.getCurrentPosition());
+            telemetry.update();
+        }
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
     }
     private void initNavx() {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");

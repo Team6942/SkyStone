@@ -45,6 +45,7 @@ public class GamepadTest extends LinearOpMode {
         liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        claw.setDirection(DcMotorSimple.Direction.REVERSE);
 
         liftLeft.setPower(0);
         liftRight.setPower(0);
@@ -62,8 +63,8 @@ public class GamepadTest extends LinearOpMode {
         claw.setPower(1);
         claw.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
         midShift.setDirection(DcMotorSimple.Direction.FORWARD);
 
         waitForStart();
