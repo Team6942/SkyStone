@@ -23,15 +23,16 @@ public class FieldTest extends LinearOpMode {
     public void runOpMode() {
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         initNavx();
         waitForStart();
         telemetry.log().clear();
 
-        backLeft.setTargetPosition(-200);
-        backRight.setTargetPosition(-200);
-
+        backLeft.setTargetPosition(-300);
+        backRight.setTargetPosition(-300);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -50,8 +51,8 @@ public class FieldTest extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        while (opModeIsActive() && getZ() <= 90) {
-            backLeft.setPower(.2);
+        while (opModeIsActive() && getZ() <= -45) {
+            backLeft.setPower(-.2);
             backRight.setPower(.2);
         }
         backLeft.setPower(0);
