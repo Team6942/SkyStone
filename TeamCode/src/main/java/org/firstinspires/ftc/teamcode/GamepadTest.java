@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp
@@ -20,9 +21,8 @@ public class GamepadTest extends LinearOpMode {
     double liftPower;
     double drive;
     double turn;
-    double ls;
     double rt;
-    int clawPosition;
+    private boolean isClawMoving;
 
     @Override
     public void runOpMode() {
@@ -58,7 +58,6 @@ public class GamepadTest extends LinearOpMode {
         claw.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         claw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         claw.setTargetPosition(0);
-        claw.setPower(1);
         claw.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -72,7 +71,7 @@ public class GamepadTest extends LinearOpMode {
             telemetry.update();
             rt = gamepad1.right_trigger;
             turn = gamepad1.right_stick_x;
-            liftPower = gamepad1.right_stick_y;
+            liftPower = gamepad1.left_stick_y;
 
 /*            if (gamepad1.a && clawPosition >= -300) {
                 clawPosition -= 10;
@@ -85,10 +84,24 @@ public class GamepadTest extends LinearOpMode {
 
             if (gamepad1.a) {
                 claw.setTargetPosition(-300);
+                isClawMoving = true;
             }
             else if (gamepad1.b) {
                 claw.setTargetPosition(0);
+                isClawMoving = true;
             }
+            else {
+                isClawMoving = false;
+            }
+
+            if (isClawMoving) {
+                claw.setPower(1);
+            }
+            else {
+                claw.setPower(0);
+            }
+
+            telemetry.addData("",claw.getCurrentPosition());
 
             if (gamepad1.dpad_up) {
                 drive = rt;

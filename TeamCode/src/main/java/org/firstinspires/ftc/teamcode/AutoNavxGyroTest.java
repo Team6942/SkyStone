@@ -4,6 +4,7 @@ import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -22,9 +23,12 @@ public class AutoNavxGyroTest extends LinearOpMode {
         telemetry.setAutoClear(true);
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
         initNavx();
         waitForStart();
-        while (opModeIsActive() && getYaw() <= 180) {
+        while (opModeIsActive() && getYaw() >= -90) {
             backLeft.setPower(.3);
             backRight.setPower(-.3);
             telemetry.addData("gyro",getYaw());
