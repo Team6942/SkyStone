@@ -86,19 +86,17 @@ public class SkystoneDriveTest extends LinearOpMode {
 
         midShift.setPower(0);
 
-        backLeft.setTargetPosition(700);
-        backRight.setTargetPosition(700);
+        backLeft.setTargetPosition(400);
+        backRight.setTargetPosition(400);
 
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive()) {
-            backRight.setPower(.25);
-            backLeft.setPower(.25);
-        }
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
 
-        backRight.setPower(0);
-        backLeft.setPower(0);
+        while (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive())
+
 
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,17 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
 
-@TeleOp
+@Autonomous
 public class AutoVuforiaSkystoneTest extends LinearOpMode {
     private static final String VUFORIA_KEY = "AfcHR0j/////AAABmfed/GCooE4+rJdSirhUBQVIWvgEZ1O83QNRD2QssWhg80bd+b3b7U/Q9EZJkStsXbOopP3SGyYEJjWzQ9TRkw8kdvYQz9CHB6M0aT6vAWJrkJnQnSxCjC7CLW53/IXfRR9qdK40wVw+RPu5xBST5bNHVbOxD8iuCx0ePgjfIrs+yC0r4VASI6c5vfyfkFixlV36nvNQjHwM/+Eyk8s10uzKTNwDmoVtEB/A5fBH+kqtG8r7KjPYtlVlhIn9dfLCgFdG5xAdAnBfeRvdFTfk1UqkKgvrQLdcU9WFkV24kegrjTPPigwiTB8RhlXLEdF8lhw3lcwg2Gb5Nev5D1PqujovEmxrJlkM5dU5HL/f44cs";
     private VuforiaLocalizer vuforia;
-
+    VuforiaTrackables skystoneTrackables;
+    VuforiaTrackable stoneTarget;
+    OpenGLMatrix position = null;
+    Orientation rotation;
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotor midShift;
-    private double leftPower;
-    private double rightPower;
-    private double middlePower;
 
     @Override
     public void runOpMode() {
@@ -40,9 +41,13 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
         // set motor directions
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
         midShift.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -51,78 +56,70 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         parameters.cameraDirection   = VuforiaLocalizer.CameraDirection.BACK;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        VuforiaTrackables skystoneTrackables = this.vuforia.loadTrackablesFromAsset("Skystone");
+        skystoneTrackables = this.vuforia.loadTrackablesFromAsset("Skystone");
 
-        VuforiaTrackable stoneTarget = skystoneTrackables.get(0);
+        stoneTarget = skystoneTrackables.get(0);
         stoneTarget.setName("Stone Target");
-        VuforiaTrackable blueRearBridge = skystoneTrackables.get(1);
-        blueRearBridge.setName("Blue Rear Bridge");
-        VuforiaTrackable redRearBridge = skystoneTrackables.get(2);
-        redRearBridge.setName("Red Rear Bridge");
-        VuforiaTrackable redFrontBridge = skystoneTrackables.get(3);
-        redFrontBridge.setName("Red Front Bridge");
-        VuforiaTrackable blueFrontBridge = skystoneTrackables.get(4);
-        blueFrontBridge.setName("Blue Front Bridge");
-        VuforiaTrackable red1 = skystoneTrackables.get(5);
-        red1.setName("Red Perimeter 1");
-        VuforiaTrackable red2 = skystoneTrackables.get(6);
-        red2.setName("Red Perimeter 2");
-        VuforiaTrackable front1 = skystoneTrackables.get(7);
-        front1.setName("Front Perimeter 1");
-        VuforiaTrackable front2 = skystoneTrackables.get(8);
-        front2.setName("Front Perimeter 2");
-        VuforiaTrackable blue1 = skystoneTrackables.get(9);
-        blue1.setName("Blue Perimeter 1");
-        VuforiaTrackable blue2 = skystoneTrackables.get(10);
-        blue2.setName("Blue Perimeter 2");
-        VuforiaTrackable rear1 = skystoneTrackables.get(11);
-        rear1.setName("Rear Perimeter 1");
-        VuforiaTrackable rear2 = skystoneTrackables.get(12);
-        rear2.setName("Rear Perimeter 2");
 
         List<VuforiaTrackable> trackableElements = new ArrayList<VuforiaTrackable>();
         trackableElements.addAll(skystoneTrackables);
 
         waitForStart();
-
         skystoneTrackables.activate();
 
-        while(!isStopRequested()) {
-            boolean isElementVisible= false;
-            String visibleElementName = null;
-            OpenGLMatrix position = null;
-            VectorF translation;
-            Orientation rotation;
+        backRight.setPower(.35);
+        backLeft.setPower(.35);
 
-            backLeft.setPower(leftPower);
-            backRight.setPower(rightPower);
-            midShift.setPower(middlePower);
+        while (backLeft.getCurrentPosition() < 600 && backRight.getCurrentPosition() < 600);
 
-            for (VuforiaTrackable trackableElement : trackableElements) {
-                if (((VuforiaTrackableDefaultListener)trackableElement.getListener()).isVisible()) {
-                    isElementVisible = true;
-                    visibleElementName = trackableElement.getName();
-                    position = ((VuforiaTrackableDefaultListener)trackableElement.getListener()).getPose();
-                    break;
-                }
-            }
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        midShift.setPower(-.377);
 
-            if (isElementVisible) {
-                telemetry.addData("Most Visible Target", visibleElementName);
-                translation = position.getTranslation();
-                rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-                telemetry.addData("Target Translation","%s,%s,%s",Math.floor(translation.get(0)),Math.floor(translation.get(1)),Math.floor(translation.get(2)));
-                telemetry.addData("Target Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
-            }
-            else {
-                telemetry.addData("Most Visible Target", "none");
-            }
+        while (getAngle() == 0);
+        while (getAngle() > 1);
 
-            telemetry.update();
-            telemetry.clear();
+        midShift.setPower(0);
 
-            isElementVisible = false;
-        }
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        backLeft.setPower(.35);
+        backRight.setPower(.35);
+
+        while (backLeft.getCurrentPosition() < 300 && backRight.getCurrentPosition() < 300);
+
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        backLeft.setPower(-.35);
+        backRight.setPower(-.35);
+
+        while (backLeft.getCurrentPosition() > -300 && backRight.getCurrentPosition() > -300);
+
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        midShift.setPower(.5);
+        while (midShift.getCurrentPosition() < 3000)
         skystoneTrackables.deactivate();
+    }
+    private float getAngle() {
+        float angle;
+        if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+            position = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getPose();
+            rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+            telemetry.addData("Target Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
+        }
+        if (rotation == null) {
+            angle = 0;
+        }
+        else {
+            angle = rotation.firstAngle;
+        }
+        return angle;
     }
 }
