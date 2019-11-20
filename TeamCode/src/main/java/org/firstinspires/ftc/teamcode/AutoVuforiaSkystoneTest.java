@@ -34,6 +34,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotor midShift;
+    float leftDisplacement;
 
     @Override
     public void runOpMode() {
@@ -78,23 +79,13 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
 
         while (getAngle() == 0);
         while (getAngle() > 1);
-
+        leftDisplacement = midShift.getCurrentPosition();
         midShift.setPower(0);
-
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         backLeft.setPower(.35);
         backRight.setPower(.35);
 
         while (backLeft.getCurrentPosition() < 300 && backRight.getCurrentPosition() < 300);
-
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         backLeft.setPower(-.35);
         backRight.setPower(-.35);
@@ -104,7 +95,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
         midShift.setPower(.5);
-        while (midShift.getCurrentPosition() < 3000)
+        while (midShift.getCurrentPosition() < 2000 + leftDisplacement)
         skystoneTrackables.deactivate();
     }
     private float getAngle() {
