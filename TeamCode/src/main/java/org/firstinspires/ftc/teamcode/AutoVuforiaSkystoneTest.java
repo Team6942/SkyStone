@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -31,17 +33,33 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
     VuforiaTrackable stoneTarget;
     OpenGLMatrix position = null;
     Orientation rotation;
+    private IntegratingGyroscope gyro;
+    private NavxMicroNavigationSensor navxMicro;
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotor midShift;
+    DcMotor liftLeft;
+    DcMotor liftRight;
     float leftDisplacement;
+    float currentDrift;
+    float counterDriftPower;
 
     @Override
     public void runOpMode() {
+        initNavx();
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
+        liftLeft = hardwareMap.get(DcMotor.class, "liftLeft");
+        liftRight = hardwareMap.get(DcMotor.class, "liftRight");
+
         // set motor directions
+        liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
         midShift.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -71,46 +89,72 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         backRight.setPower(.35);
         backLeft.setPower(.35);
 
-        while (backLeft.getCurrentPosition() < 600 && backRight.getCurrentPosition() < 600);
+        while (backLeft.getCurrentPosition() < 500 && backRight.getCurrentPosition() < 500);
 
         backLeft.setPower(0);
         backRight.setPower(0);
-        midShift.setPower(-.377);
+        midShift.setPower(-.4);
 
-        while (getAngle() == 0);
-        while (getAngle() > 1);
-        leftDisplacement = midShift.getCurrentPosition();
+        while (getAngle() == 0 && opModeIsActive()) {
+            currentDrift = getYaw();
+            counterDriftPower = currentDrift / 90;
+            telemetry.addData("power for left motor",counterDriftPower);
+            telemetry.addData("yaw",currentDrift);
+            telemetry.update();
+            backLeft.setPower(counterDriftPower);
+            backRight.setPower(-counterDriftPower);
+        }
+        while (getAngle() > .5 && opModeIsActive()) {
+            currentDrift = getYaw();
+            counterDriftPower = currentDrift / 90;
+            telemetry.addData("power for left motor",counterDriftPower);
+            telemetry.addData("yaw",currentDrift);
+            telemetry.update();
+            backLeft.setPower(counterDriftPower);
+            backRight.setPower(-counterDriftPower);
+        }
         midShift.setPower(0);
 
-        backLeft.setPower(.35);
         backRight.setPower(.35);
+        backLeft.setPower(.35);
 
-        while (backLeft.getCurrentPosition() < 300 && backRight.getCurrentPosition() < 300);
+        while (backLeft.getCurrentPosition() < 500 && backRight.getCurrentPosition() < 500 && opModeIsActive());
 
-        backLeft.setPower(-.35);
-        backRight.setPower(-.35);
-
-        while (backLeft.getCurrentPosition() > -300 && backRight.getCurrentPosition() > -300);
-
-        backLeft.setPower(0);
         backRight.setPower(0);
-        midShift.setPower(.5);
-        while (midShift.getCurrentPosition() < 2000 + leftDisplacement)
-        skystoneTrackables.deactivate();
+        backLeft.setPower(0);
+
+        liftLeft.setPower(-.35);
+        liftRight.setPower(-.35);
+
+        while (liftLeft.getCurrentPosition() > -400 && liftRight.getCurrentPosition() > -400 && opModeIsActive());
+
+        liftLeft.setPower(0);
+        liftRight.setPower(0);
     }
     private float getAngle() {
         float angle;
-        if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
-            position = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getPose();
+        if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
+            position = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getPose();
             rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-            telemetry.addData("Target Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
+            telemetry.addData("Target Rotation", "%s,%s,%s", Math.floor(rotation.firstAngle), Math.floor(rotation.secondAngle), Math.floor(rotation.thirdAngle));
         }
         if (rotation == null) {
             angle = 0;
-        }
-        else {
+        } else {
             angle = rotation.firstAngle;
         }
         return angle;
+    }
+    private void initNavx() {
+        navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+        gyro = (IntegratingGyroscope)navxMicro;
+        telemetry.log().add("do not move robot navx is calibrating");
+        while (navxMicro.isCalibrating());
+        telemetry.log().clear();
+        telemetry.log().add("done calibrating");
+    }
+    private float getYaw() {
+        Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return angles.firstAngle;
     }
 }
