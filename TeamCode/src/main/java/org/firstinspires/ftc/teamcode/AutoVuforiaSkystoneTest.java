@@ -101,16 +101,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
 
         while (getAngle() == 0 && opModeIsActive()) {
             currentDrift = getYaw();
-            counterDriftPower = currentDrift / 90;
-            telemetry.addData("power for left motor",counterDriftPower);
-            telemetry.addData("yaw",currentDrift);
-            telemetry.update();
-            backLeft.setPower(counterDriftPower);
-            backRight.setPower(-counterDriftPower);
-        }
-        while (getAngle() > .5 && opModeIsActive()) {
-            currentDrift = getYaw();
-            counterDriftPower = currentDrift / 90;
+            counterDriftPower = (currentDrift / 90) * 2;
             telemetry.addData("power for left motor",counterDriftPower);
             telemetry.addData("yaw",currentDrift);
             telemetry.update();
@@ -140,6 +131,18 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
                 backRight.setPower(-counterDriftPower);
             }
         }
+        midShift.setPower(0);
+        sleep(2000);
+//        midShift.setPower(-.4);
+//        while (getAngle() > .5 && opModeIsActive()) {
+//            currentDrift = getYaw();
+//            counterDriftPower = currentDrift / 90;
+//            telemetry.addData("power for left motor",counterDriftPower);
+//            telemetry.addData("yaw",currentDrift);
+//            telemetry.update();
+//            backLeft.setPower(counterDriftPower);
+//            backRight.setPower(-counterDriftPower);
+//        }
         midShift.setPower(0);
 
         backRight.setPower(.35);
