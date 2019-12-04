@@ -37,13 +37,13 @@ public class VuforiaObjectRegTest extends LinearOpMode {
     private double leftStick;
     @Override
     public void runOpMode() {
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+/*        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
         // set motor directions
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        midShift.setDirection(DcMotorSimple.Direction.FORWARD);
+        midShift.setDirection(DcMotorSimple.Direction.FORWARD);*/
         
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -68,7 +68,7 @@ public class VuforiaObjectRegTest extends LinearOpMode {
             OpenGLMatrix position = null;
             Orientation rotation;
 
-            drive = gamepad1.right_stick_y;
+/*            drive = gamepad1.right_stick_y;
             leftStick = gamepad1.left_stick_x;
             if(gamepad1.right_bumper) {
                 middlePower =  leftStick;
@@ -84,7 +84,7 @@ public class VuforiaObjectRegTest extends LinearOpMode {
 
             backLeft.setPower(leftPower);
             backRight.setPower(rightPower);
-            midShift.setPower(middlePower);
+            midShift.setPower(middlePower);*/
 
             if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
                 position = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getPose();

@@ -65,8 +65,10 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         midShift.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setTargetPosition(0);
+        backRight.setTargetPosition(0);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -88,8 +90,10 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
 
         backRight.setPower(.35);
         backLeft.setPower(.35);
+        backLeft.setTargetPosition(500);
+        backRight.setTargetPosition(500);
 
-        while (backLeft.getCurrentPosition() < 500 && backRight.getCurrentPosition() < 500);
+        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive());
 
         backLeft.setPower(0);
         backRight.setPower(0);
@@ -113,12 +117,38 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
             backLeft.setPower(counterDriftPower);
             backRight.setPower(-counterDriftPower);
         }
+        // try this next (testing)
+        if (getAngle() > 0) {
+            while (getAngle() > .5 && opModeIsActive()) {
+                currentDrift = getYaw();
+                counterDriftPower = currentDrift / 90;
+                telemetry.addData("power for left motor",counterDriftPower);
+                telemetry.addData("yaw",currentDrift);
+                telemetry.update();
+                backLeft.setPower(counterDriftPower);
+                backRight.setPower(-counterDriftPower);
+            }
+        } else {
+            midShift.setPower(.4);
+            while (getAngle() < -.5 && opModeIsActive()) {
+                currentDrift = getYaw();
+                counterDriftPower = currentDrift / 90;
+                telemetry.addData("power for left motor",counterDriftPower);
+                telemetry.addData("yaw",currentDrift);
+                telemetry.update();
+                backLeft.setPower(counterDriftPower);
+                backRight.setPower(-counterDriftPower);
+            }
+        }
         midShift.setPower(0);
 
         backRight.setPower(.35);
         backLeft.setPower(.35);
 
-        while (backLeft.getCurrentPosition() < 500 && backRight.getCurrentPosition() < 500 && opModeIsActive());
+        backLeft.setTargetPosition(800);
+        backLeft.setTargetPosition(800);
+
+        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive());
 
         backRight.setPower(0);
         backLeft.setPower(0);
@@ -126,7 +156,10 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         liftLeft.setPower(-.35);
         liftRight.setPower(-.35);
 
-        while (liftLeft.getCurrentPosition() > -400 && liftRight.getCurrentPosition() > -400 && opModeIsActive());
+        liftLeft.setTargetPosition(-400);
+        liftRight.setTargetPosition(-400);
+
+        while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive());
 
         liftLeft.setPower(0);
         liftRight.setPower(0);
@@ -141,7 +174,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         if (rotation == null) {
             angle = 0;
         } else {
-            angle = rotation.firstAngle;
+            angle = rotation.secondAngle;
         }
         return angle;
     }
