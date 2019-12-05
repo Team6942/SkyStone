@@ -3,15 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -40,7 +37,6 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
     private DcMotor midShift;
     DcMotor liftLeft;
     DcMotor liftRight;
-    float leftDisplacement;
     float currentDrift;
     float counterDriftPower;
 
@@ -89,10 +85,23 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         backRight.setPower(.35);
         backLeft.setPower(.35);
 
-        while (backLeft.getCurrentPosition() < 500 && backRight.getCurrentPosition() < 500);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setTargetPosition(500);
+        backRight.setTargetPosition(500);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive());
 
         backLeft.setPower(0);
         backRight.setPower(0);
+
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         midShift.setPower(-.4);
 
         while (getAngle() == 0 && opModeIsActive()) {
@@ -105,13 +114,14 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
             backRight.setPower(-counterDriftPower);
         }
         midShift.setPower(0);
-        sleep(2000);
+        sleep(1000);
         midShift.setPower(-.2);
 
         midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        midShift.setTargetPosition(-200);
+        midShift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (midShift.getCurrentPosition() > -200 && opModeIsActive()) {
+        while (midShift.isBusy() && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90) * 2;
             telemetry.addData("power for left motor",counterDriftPower);
@@ -120,12 +130,18 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
             backLeft.setPower(counterDriftPower);
             backRight.setPower(-counterDriftPower);
         }
-        backRight.setPower(0);
-
+        midShift.setPower(0);
         backRight.setPower(.35);
         backLeft.setPower(.35);
 
-        while (backLeft.getCurrentPosition() < 500 && backRight.getCurrentPosition() < 500 && opModeIsActive());
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setTargetPosition(500);
+        backRight.setTargetPosition(500);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive());
 
         backRight.setPower(0);
         backLeft.setPower(0);
@@ -133,7 +149,14 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         liftLeft.setPower(-.35);
         liftRight.setPower(-.35);
 
-        while (liftLeft.getCurrentPosition() > -400 && liftRight.getCurrentPosition() > -400 && opModeIsActive());
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setTargetPosition(-400);
+        backRight.setTargetPosition(-400);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive());
 
         liftLeft.setPower(0);
         liftRight.setPower(0);
