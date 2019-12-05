@@ -101,47 +101,72 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         midShift.setPower(-.4);
 
         while (getAngle() == 0 && opModeIsActive()) {
             currentDrift = getYaw();
-            counterDriftPower = (currentDrift / 90) * 2;
+            counterDriftPower = (currentDrift / 90);
             telemetry.addData("power for left motor",counterDriftPower);
             telemetry.addData("yaw",currentDrift);
             telemetry.update();
             backLeft.setPower(counterDriftPower);
             backRight.setPower(-counterDriftPower);
         }
+        if (getAngle() > .2) {
+            midShift.setPower(-.45);
+
+            midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            while (midShift.getCurrentPosition() > -150 && opModeIsActive()) {
+                currentDrift = getYaw();
+                counterDriftPower = (currentDrift / 90) * 2;
+                telemetry.addData("power for left motor",counterDriftPower);
+                telemetry.addData("yaw",currentDrift);
+                telemetry.update();
+                backLeft.setPower(counterDriftPower);
+                backRight.setPower(-counterDriftPower);
+            }
+
+        } else if (getAngle() < -.1) {
+            // move left 100
+            midShift.setPower(-.45);
+
+            midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            while (midShift.getCurrentPosition() > -290 && opModeIsActive()) {
+                currentDrift = getYaw();
+                counterDriftPower = (currentDrift / 90) * 2;
+                telemetry.addData("power for left motor",counterDriftPower);
+                telemetry.addData("yaw",currentDrift);
+                telemetry.update();
+                backLeft.setPower(counterDriftPower);
+                backRight.setPower(-counterDriftPower);
+            }
+        }
+
+        midShift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         midShift.setPower(0);
-        sleep(1000);
-        midShift.setPower(-.2);
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
 
-        midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        midShift.setTargetPosition(-200);
-        midShift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setTargetPosition(400);
+        backRight.setTargetPosition(400);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (midShift.isBusy() && opModeIsActive()) {
+        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90) * 2;
             telemetry.addData("power for left motor",counterDriftPower);
             telemetry.addData("yaw",currentDrift);
             telemetry.update();
-            backLeft.setPower(counterDriftPower);
-            backRight.setPower(-counterDriftPower);
+            backLeft.setPower(counterDriftPower + .25);
+            backRight.setPower(-counterDriftPower + .25);
         }
-        midShift.setPower(0);
-        backRight.setPower(.35);
-        backLeft.setPower(.35);
-
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(500);
-        backRight.setTargetPosition(500);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive());
 
         backRight.setPower(0);
         backLeft.setPower(0);
@@ -149,12 +174,12 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         liftLeft.setPower(-.35);
         liftRight.setPower(-.35);
 
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(-400);
-        backRight.setTargetPosition(-400);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftLeft.setTargetPosition(-100);
+        liftRight.setTargetPosition(-100);
+        liftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive());
 
@@ -179,7 +204,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
         gyro = (IntegratingGyroscope)navxMicro;
         telemetry.log().add("do not move robot navx is calibrating");
-        while (navxMicro.isCalibrating());
+        while (navxMicro.isCalibrating() && opModeIsActive());
         telemetry.log().clear();
         telemetry.log().add("done calibrating");
     }
