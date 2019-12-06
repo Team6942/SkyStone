@@ -24,7 +24,7 @@ import java.util.List;
 import java.lang.Math;
 
 @Autonomous
-public class AutoVuforiaSkystoneTest extends LinearOpMode {
+public class AutonomousMode extends LinearOpMode {
     private static final String VUFORIA_KEY = "AfcHR0j/////AAABmfed/GCooE4+rJdSirhUBQVIWvgEZ1O83QNRD2QssWhg80bd+b3b7U/Q9EZJkStsXbOopP3SGyYEJjWzQ9TRkw8kdvYQz9CHB6M0aT6vAWJrkJnQnSxCjC7CLW53/IXfRR9qdK40wVw+RPu5xBST5bNHVbOxD8iuCx0ePgjfIrs+yC0r4VASI6c5vfyfkFixlV36nvNQjHwM/+Eyk8s10uzKTNwDmoVtEB/A5fBH+kqtG8r7KjPYtlVlhIn9dfLCgFdG5xAdAnBfeRvdFTfk1UqkKgvrQLdcU9WFkV24kegrjTPPigwiTB8RhlXLEdF8lhw3lcwg2Gb5Nev5D1PqujovEmxrJlkM5dU5HL/f44cs";
     private VuforiaLocalizer vuforia;
     VuforiaTrackables skystoneTrackables;
@@ -52,7 +52,6 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         liftRight = hardwareMap.get(DcMotor.class, "liftRight");
         pushServo = hardwareMap.get(Servo.class,"pushServo");
 
-        // set motor directions and zero servos
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
         liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

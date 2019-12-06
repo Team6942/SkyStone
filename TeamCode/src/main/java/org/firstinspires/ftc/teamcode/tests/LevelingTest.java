@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -14,50 +13,43 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @TeleOp
-public class NavxGyroTest extends LinearOpMode {
-    DcMotor backLeft;
-    DcMotor backRight;
-    private double leftPower;
-    private double rightPower;
-    private double drive;
-    private double turn;
+public class LevelingTest extends LinearOpMode {
+    private DcMotor backLeft;
+    private DcMotor backRight;
+    private DcMotor midShift;
     private IntegratingGyroscope gyro;
     private NavxMicroNavigationSensor navxMicro;
-
+    float currentDrift;
+    float counterDriftPower;
+    float midShiftPower;
     @Override
     public void runOpMode() {
         telemetry.setAutoClear(true);
         initNavx();
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        midShift = hardwareMap.get(DcMotor.class,"midShift");
+
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        midShift.setDirection(DcMotorSimple.Direction.FORWARD);
         waitForStart();
         while (opModeIsActive()) {
-            drive = gamepad1.right_stick_y;
-            turn = gamepad1.left_stick_x;
-
-            leftPower = Range.clip(drive + turn,-1,1);
-            rightPower = Range.clip(drive - turn,-1,1);
-
-            backLeft.setPower(leftPower);
-            backRight.setPower(rightPower);
-
-            telemetry.addData("Path2",  "%7d :%7d",
-                    backLeft.getCurrentPosition(),
-                    backRight.getCurrentPosition());
-
-            telemetry.addData("gyro",getYaw());
+            midShiftPower = gamepad1.left_stick_y;
+            currentDrift = getYaw();
+            counterDriftPower = currentDrift / 90;
+            telemetry.addData("power for left motor",counterDriftPower);
+            telemetry.addData("yaw",currentDrift);
             telemetry.update();
+            midShift.setPower(midShiftPower);
+            backLeft.setPower(counterDriftPower);
+            backRight.setPower(-counterDriftPower);
         }
+
     }
     private void initNavx() {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = navxMicro;
+        gyro = (IntegratingGyroscope)navxMicro;
         telemetry.log().add("do not move robot navx is calibrating");
         while (navxMicro.isCalibrating());
         telemetry.log().clear();

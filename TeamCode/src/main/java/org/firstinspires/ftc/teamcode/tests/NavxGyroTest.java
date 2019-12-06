@@ -1,62 +1,59 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous
-public class FieldTest extends LinearOpMode {
+@TeleOp
+public class NavxGyroTest extends LinearOpMode {
     DcMotor backLeft;
     DcMotor backRight;
-    IntegratingGyroscope gyro;
-    NavxMicroNavigationSensor navxMicro;
+    private double leftPower;
+    private double rightPower;
+    private double drive;
+    private double turn;
+    private IntegratingGyroscope gyro;
+    private NavxMicroNavigationSensor navxMicro;
 
     @Override
     public void runOpMode() {
+        telemetry.setAutoClear(true);
+        initNavx();
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        initNavx();
-        waitForStart();
-        telemetry.log().clear();
-
-        backLeft.setTargetPosition(-300);
-        backRight.setTargetPosition(-300);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        backRight.setPower(.25);
-        backLeft.setPower(.25);
-
-        while (opModeIsActive() && backLeft.isBusy() && backRight.isBusy()) {
-            telemetry.addData("Path2", "%7d :%7d",
-                    backLeft.getCurrentPosition(),
-                    backRight.getCurrentPosition());
-            telemetry.update();
-        }
-        backLeft.setPower(0);
-        backRight.setPower(0);
-
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        waitForStart();
+        while (opModeIsActive()) {
+            drive = gamepad1.right_stick_y;
+            turn = gamepad1.left_stick_x;
 
-        while (opModeIsActive() && getZ() <= -45) {
-            backLeft.setPower(-.2);
-            backRight.setPower(.2);
+            leftPower = Range.clip(drive + turn,-1,1);
+            rightPower = Range.clip(drive - turn,-1,1);
+
+            backLeft.setPower(leftPower);
+            backRight.setPower(rightPower);
+
+            telemetry.addData("Path2",  "%7d :%7d",
+                    backLeft.getCurrentPosition(),
+                    backRight.getCurrentPosition());
+
+            telemetry.addData("gyro",getYaw());
+            telemetry.update();
         }
-        backLeft.setPower(0);
-        backRight.setPower(0);
     }
     private void initNavx() {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
@@ -66,12 +63,8 @@ public class FieldTest extends LinearOpMode {
         telemetry.log().clear();
         telemetry.log().add("done calibrating");
     }
-    private float getZ() {
+    private float getYaw() {
         Orientation orientation = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return orientation.firstAngle;
-    }
-    private float getY() {
-        Orientation orientation = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        return orientation.secondAngle;
     }
 }

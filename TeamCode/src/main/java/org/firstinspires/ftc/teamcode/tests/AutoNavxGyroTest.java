@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
@@ -12,40 +13,29 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp
-public class LevelingTest extends LinearOpMode {
+@Disabled
+@Autonomous
+public class AutoNavxGyroTest extends LinearOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
-    private DcMotor midShift;
     private IntegratingGyroscope gyro;
     private NavxMicroNavigationSensor navxMicro;
-    float currentDrift;
-    float counterDriftPower;
-    float midShiftPower;
     @Override
     public void runOpMode() {
         telemetry.setAutoClear(true);
-        initNavx();
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
-        midShift = hardwareMap.get(DcMotor.class,"midShift");
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        midShift.setDirection(DcMotorSimple.Direction.FORWARD);
+        initNavx();
         waitForStart();
-        while (opModeIsActive()) {
-            midShiftPower = gamepad1.left_stick_y;
-            currentDrift = getYaw();
-            counterDriftPower = currentDrift / 90;
-            telemetry.addData("power for left motor",counterDriftPower);
-            telemetry.addData("yaw",currentDrift);
+        while (opModeIsActive() && getYaw() >= -90) {
+            backLeft.setPower(.3);
+            backRight.setPower(-.3);
+            telemetry.addData("gyro",getYaw());
             telemetry.update();
-            midShift.setPower(midShiftPower);
-            backLeft.setPower(counterDriftPower);
-            backRight.setPower(-counterDriftPower);
         }
-
     }
     private void initNavx() {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
