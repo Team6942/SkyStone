@@ -19,39 +19,42 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.lang.Math;
 
 @Autonomous
 public class AutonomousMode extends LinearOpMode {
+    // use appropriate key
     private static final String VUFORIA_KEY = "AfcHR0j/////AAABmfed/GCooE4+rJdSirhUBQVIWvgEZ1O83QNRD2QssWhg80bd+b3b7U/Q9EZJkStsXbOopP3SGyYEJjWzQ9TRkw8kdvYQz9CHB6M0aT6vAWJrkJnQnSxCjC7CLW53/IXfRR9qdK40wVw+RPu5xBST5bNHVbOxD8iuCx0ePgjfIrs+yC0r4VASI6c5vfyfkFixlV36nvNQjHwM/+Eyk8s10uzKTNwDmoVtEB/A5fBH+kqtG8r7KjPYtlVlhIn9dfLCgFdG5xAdAnBfeRvdFTfk1UqkKgvrQLdcU9WFkV24kegrjTPPigwiTB8RhlXLEdF8lhw3lcwg2Gb5Nev5D1PqujovEmxrJlkM5dU5HL/f44cs";
     private VuforiaLocalizer vuforia;
-    VuforiaTrackables skystoneTrackables;
-    VuforiaTrackable stoneTarget;
-    OpenGLMatrix position = null;
-    Orientation rotation;
+    private VuforiaTrackables skystoneTrackables;
+    private VuforiaTrackable stoneTarget;
+    private OpenGLMatrix position = null;
+    private Orientation rotation;
+    // gyro objects
     private IntegratingGyroscope gyro;
     private NavxMicroNavigationSensor navxMicro;
+    // motors
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotor midShift;
-    DcMotor liftLeft;
-    DcMotor liftRight;
-    Servo pushServo;
-    float currentDrift;
-    float counterDriftPower;
+    private DcMotor liftLeft;
+    private DcMotor liftRight;
+    private Servo pushServo;
+    // drift vars
+    private float currentDrift;
+    private float counterDriftPower;
 
     @Override
     public void runOpMode() {
         initNavx();
+        // get hardware objects
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
         liftLeft = hardwareMap.get(DcMotor.class, "liftLeft");
         liftRight = hardwareMap.get(DcMotor.class, "liftRight");
         pushServo = hardwareMap.get(Servo.class,"pushServo");
-
+        // set motor modes and directions
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
         liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -66,24 +69,11 @@ public class AutonomousMode extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = VuforiaLocalizer.CameraDirection.BACK;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        skystoneTrackables = this.vuforia.loadTrackablesFromAsset("Skystone");
-
-        stoneTarget = skystoneTrackables.get(0);
-        stoneTarget.setName("Stone Target");
-
-        List<VuforiaTrackable> trackableElements = new ArrayList<VuforiaTrackable>();
-        trackableElements.addAll(skystoneTrackables);
+        setupVuforia();
 
         waitForStart();
         skystoneTrackables.activate();
-
+        // move forward 900 ticks
         backRight.setPower(.35);
         backLeft.setPower(.35);
 
@@ -104,7 +94,7 @@ public class AutonomousMode extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         midShift.setPower(-.4);
-
+        // move left until a skystone is detected
         while (getAngle() == 0 && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90);
@@ -114,6 +104,7 @@ public class AutonomousMode extends LinearOpMode {
             backLeft.setPower(counterDriftPower);
             backRight.setPower(-counterDriftPower);
         }
+        // center with the block
         if (getAngle() > .2) {
             midShift.setPower(-.45);
 
@@ -145,8 +136,7 @@ public class AutonomousMode extends LinearOpMode {
                 backLeft.setPower(counterDriftPower);
                 backRight.setPower(-counterDriftPower);
             }
-        }
-        else {
+        } else {
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -162,7 +152,7 @@ public class AutonomousMode extends LinearOpMode {
                 backRight.setPower(-counterDriftPower);
             }
         }
-
+        // move forward 200 ticks to get in grabbing range of the block
         midShift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         midShift.setPower(0);
         backRight.setPower(.25);
@@ -184,11 +174,12 @@ public class AutonomousMode extends LinearOpMode {
             backLeft.setPower(counterDriftPower + .25);
             backRight.setPower(-counterDriftPower + .25);
         }
-
+        // drop arm
         pushServo.setPosition(0);
         sleep(500);
         pushServo.setPosition(90);
-
+        // TODO: close claw on block
+        // back up 200 ticks
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setTargetPosition(-200);
@@ -208,6 +199,19 @@ public class AutonomousMode extends LinearOpMode {
 
         backRight.setPower(0);
         backLeft.setPower(0);
+    }
+    private void setupVuforia() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection   = VuforiaLocalizer.CameraDirection.BACK;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        skystoneTrackables = this.vuforia.loadTrackablesFromAsset("Skystone");
+
+        stoneTarget = skystoneTrackables.get(0);
+        stoneTarget.setName("Stone Target");
     }
     private float getAngle() {
         float angle;
