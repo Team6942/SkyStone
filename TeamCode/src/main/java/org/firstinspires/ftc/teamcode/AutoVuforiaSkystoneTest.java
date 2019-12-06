@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -37,6 +38,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
     private DcMotor midShift;
     DcMotor liftLeft;
     DcMotor liftRight;
+    Servo pushServo;
     float currentDrift;
     float counterDriftPower;
 
@@ -48,8 +50,9 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
         midShift = hardwareMap.get(DcMotor.class,"midShift");
         liftLeft = hardwareMap.get(DcMotor.class, "liftLeft");
         liftRight = hardwareMap.get(DcMotor.class, "liftRight");
+        pushServo = hardwareMap.get(Servo.class,"pushServo");
 
-        // set motor directions
+        // set motor directions and zero servos
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
         liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -87,8 +90,8 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(500);
-        backRight.setTargetPosition(500);
+        backLeft.setTargetPosition(900);
+        backRight.setTargetPosition(900);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -118,7 +121,7 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            while (midShift.getCurrentPosition() > -150 && opModeIsActive()) {
+            while (midShift.getCurrentPosition() > -170 && opModeIsActive()) {
                 currentDrift = getYaw();
                 counterDriftPower = (currentDrift / 90) * 2;
                 telemetry.addData("power for left motor",counterDriftPower);
@@ -129,13 +132,28 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
             }
 
         } else if (getAngle() < -.1) {
-            // move left 100
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            while (midShift.getCurrentPosition() > -290 && opModeIsActive()) {
+            while (midShift.getCurrentPosition() > -280 && opModeIsActive()) {
+                currentDrift = getYaw();
+                counterDriftPower = (currentDrift / 90) * 2;
+                telemetry.addData("power for left motor",counterDriftPower);
+                telemetry.addData("yaw",currentDrift);
+                telemetry.update();
+                backLeft.setPower(counterDriftPower);
+                backRight.setPower(-counterDriftPower);
+            }
+        }
+        else {
+            midShift.setPower(-.45);
+
+            midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            while (midShift.getCurrentPosition() > -270 && opModeIsActive()) {
                 currentDrift = getYaw();
                 counterDriftPower = (currentDrift / 90) * 2;
                 telemetry.addData("power for left motor",counterDriftPower);
@@ -153,8 +171,29 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(400);
-        backRight.setTargetPosition(400);
+        backLeft.setTargetPosition(200);
+        backRight.setTargetPosition(200);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive()) {
+            currentDrift = getYaw();
+            counterDriftPower = (currentDrift / 90) * 2;
+            telemetry.addData("power for left motor",counterDriftPower);
+            telemetry.addData("yaw",currentDrift);
+            telemetry.update();
+            backLeft.setPower(counterDriftPower + .25);
+            backRight.setPower(-counterDriftPower + .25);
+        }
+
+        pushServo.setPosition(0);
+        sleep(500);
+        pushServo.setPosition(90);
+
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setTargetPosition(-200);
+        backRight.setTargetPosition(-200);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -170,21 +209,6 @@ public class AutoVuforiaSkystoneTest extends LinearOpMode {
 
         backRight.setPower(0);
         backLeft.setPower(0);
-
-        liftLeft.setPower(-.35);
-        liftRight.setPower(-.35);
-
-        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftLeft.setTargetPosition(-100);
-        liftRight.setTargetPosition(-100);
-        liftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive());
-
-        liftLeft.setPower(0);
-        liftRight.setPower(0);
     }
     private float getAngle() {
         float angle;
