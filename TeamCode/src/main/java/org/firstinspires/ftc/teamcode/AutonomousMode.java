@@ -39,10 +39,14 @@ public class AutonomousMode extends LinearOpMode {
     private DcMotor midShift;
     private DcMotor liftLeft;
     private DcMotor liftRight;
+    private DcMotor claw;
     private Servo pushServo;
     // drift vars
     private float currentDrift;
     private float counterDriftPower;
+    // claw vars
+    private boolean isSkystoneGrabbed = false;
+    private float lastClawPosition;
 
     @Override
     public void runOpMode() {
@@ -54,6 +58,8 @@ public class AutonomousMode extends LinearOpMode {
         liftLeft = hardwareMap.get(DcMotor.class, "liftLeft");
         liftRight = hardwareMap.get(DcMotor.class, "liftRight");
         pushServo = hardwareMap.get(Servo.class,"pushServo");
+        claw = hardwareMap.get(DcMotor.class,"claw");
+
         // set motor modes and directions
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -68,7 +74,10 @@ public class AutonomousMode extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        // open the claw
+        claw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        claw.setTargetPosition(-300);
+        claw.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         setupVuforia();
 
         waitForStart();
@@ -98,9 +107,6 @@ public class AutonomousMode extends LinearOpMode {
         while (getAngle() == 0 && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90);
-            telemetry.addData("power for left motor",counterDriftPower);
-            telemetry.addData("yaw",currentDrift);
-            telemetry.update();
             backLeft.setPower(counterDriftPower);
             backRight.setPower(-counterDriftPower);
         }
@@ -114,9 +120,6 @@ public class AutonomousMode extends LinearOpMode {
             while (midShift.getCurrentPosition() > -170 && opModeIsActive()) {
                 currentDrift = getYaw();
                 counterDriftPower = (currentDrift / 90) * 2;
-                telemetry.addData("power for left motor",counterDriftPower);
-                telemetry.addData("yaw",currentDrift);
-                telemetry.update();
                 backLeft.setPower(counterDriftPower);
                 backRight.setPower(-counterDriftPower);
             }
@@ -130,9 +133,6 @@ public class AutonomousMode extends LinearOpMode {
             while (midShift.getCurrentPosition() > -280 && opModeIsActive()) {
                 currentDrift = getYaw();
                 counterDriftPower = (currentDrift / 90) * 2;
-                telemetry.addData("power for left motor",counterDriftPower);
-                telemetry.addData("yaw",currentDrift);
-                telemetry.update();
                 backLeft.setPower(counterDriftPower);
                 backRight.setPower(-counterDriftPower);
             }
@@ -145,9 +145,6 @@ public class AutonomousMode extends LinearOpMode {
             while (midShift.getCurrentPosition() > -270 && opModeIsActive()) {
                 currentDrift = getYaw();
                 counterDriftPower = (currentDrift / 90) * 2;
-                telemetry.addData("power for left motor",counterDriftPower);
-                telemetry.addData("yaw",currentDrift);
-                telemetry.update();
                 backLeft.setPower(counterDriftPower);
                 backRight.setPower(-counterDriftPower);
             }
@@ -168,9 +165,6 @@ public class AutonomousMode extends LinearOpMode {
         while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90) * 2;
-            telemetry.addData("power for left motor",counterDriftPower);
-            telemetry.addData("yaw",currentDrift);
-            telemetry.update();
             backLeft.setPower(counterDriftPower + .25);
             backRight.setPower(-counterDriftPower + .25);
         }
@@ -178,7 +172,19 @@ public class AutonomousMode extends LinearOpMode {
         pushServo.setPosition(0);
         sleep(500);
         pushServo.setPosition(90);
-        // TODO: close claw on block
+        // close claw on skystone
+        claw.setTargetPosition(0);
+        claw.setPower(.7);
+        lastClawPosition = claw.getCurrentPosition();
+        while (!isSkystoneGrabbed) {
+            if (!(claw.getCurrentPosition() >= lastClawPosition + 5) || !(claw.getCurrentPosition() <= lastClawPosition - 5)) {
+                isSkystoneGrabbed = true;
+            }
+        }
+        claw.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        claw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        claw.setPower(0);
+
         // back up 200 ticks
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -190,9 +196,6 @@ public class AutonomousMode extends LinearOpMode {
         while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90) * 2;
-            telemetry.addData("power for left motor",counterDriftPower);
-            telemetry.addData("yaw",currentDrift);
-            telemetry.update();
             backLeft.setPower(counterDriftPower + .25);
             backRight.setPower(-counterDriftPower + .25);
         }
