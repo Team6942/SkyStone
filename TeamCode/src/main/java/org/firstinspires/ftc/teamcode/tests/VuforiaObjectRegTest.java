@@ -1,14 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -38,13 +35,13 @@ public class VuforiaObjectRegTest extends LinearOpMode {
     private double leftStick;
     @Override
     public void runOpMode() {
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+/*        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
         // set motor directions
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        midShift.setDirection(DcMotorSimple.Direction.FORWARD);
+        midShift.setDirection(DcMotorSimple.Direction.FORWARD);*/
         
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -57,30 +54,6 @@ public class VuforiaObjectRegTest extends LinearOpMode {
 
         VuforiaTrackable stoneTarget = skystoneTrackables.get(0);
         stoneTarget.setName("Stone Target");
-        VuforiaTrackable blueRearBridge = skystoneTrackables.get(1);
-        blueRearBridge.setName("Blue Rear Bridge");
-        VuforiaTrackable redRearBridge = skystoneTrackables.get(2);
-        redRearBridge.setName("Red Rear Bridge");
-        VuforiaTrackable redFrontBridge = skystoneTrackables.get(3);
-        redFrontBridge.setName("Red Front Bridge");
-        VuforiaTrackable blueFrontBridge = skystoneTrackables.get(4);
-        blueFrontBridge.setName("Blue Front Bridge");
-        VuforiaTrackable red1 = skystoneTrackables.get(5);
-        red1.setName("Red Perimeter 1");
-        VuforiaTrackable red2 = skystoneTrackables.get(6);
-        red2.setName("Red Perimeter 2");
-        VuforiaTrackable front1 = skystoneTrackables.get(7);
-        front1.setName("Front Perimeter 1");
-        VuforiaTrackable front2 = skystoneTrackables.get(8);
-        front2.setName("Front Perimeter 2");
-        VuforiaTrackable blue1 = skystoneTrackables.get(9);
-        blue1.setName("Blue Perimeter 1");
-        VuforiaTrackable blue2 = skystoneTrackables.get(10);
-        blue2.setName("Blue Perimeter 2");
-        VuforiaTrackable rear1 = skystoneTrackables.get(11);
-        rear1.setName("Rear Perimeter 1");
-        VuforiaTrackable rear2 = skystoneTrackables.get(12);
-        rear2.setName("Rear Perimeter 2");
 
         List<VuforiaTrackable> trackableElements = new ArrayList<VuforiaTrackable>();
         trackableElements.addAll(skystoneTrackables);
@@ -90,13 +63,10 @@ public class VuforiaObjectRegTest extends LinearOpMode {
         skystoneTrackables.activate();
 
         while(!isStopRequested()) {
-            boolean isElementVisible= false;
-            String visibleElementName = null;
             OpenGLMatrix position = null;
-            VectorF translation;
             Orientation rotation;
 
-            drive = gamepad1.right_stick_y;
+/*            drive = gamepad1.right_stick_y;
             leftStick = gamepad1.left_stick_x;
             if(gamepad1.right_bumper) {
                 middlePower =  leftStick;
@@ -112,32 +82,16 @@ public class VuforiaObjectRegTest extends LinearOpMode {
 
             backLeft.setPower(leftPower);
             backRight.setPower(rightPower);
-            midShift.setPower(middlePower);
+            midShift.setPower(middlePower);*/
 
-            for (VuforiaTrackable trackableElement : trackableElements) {
-                if (((VuforiaTrackableDefaultListener)trackableElement.getListener()).isVisible()) {
-                    isElementVisible = true;
-                    visibleElementName = trackableElement.getName();
-                    position = ((VuforiaTrackableDefaultListener)trackableElement.getListener()).getPose();
-                    break;
-                }
-            }
-
-            if (isElementVisible) {
-                telemetry.addData("Most Visible Target", visibleElementName);
-                translation = position.getTranslation();
+            if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+                position = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getPose();
                 rotation = Orientation.getOrientation(position, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-                telemetry.addData("Target Translation","%s,%s,%s",Math.floor(translation.get(0)),Math.floor(translation.get(1)),Math.floor(translation.get(2)));
                 telemetry.addData("Target Rotation","%s,%s,%s",Math.floor(rotation.firstAngle),Math.floor(rotation.secondAngle),Math.floor(rotation.thirdAngle));
-            }
-            else {
-                telemetry.addData("Most Visible Target", "none");
             }
 
             telemetry.update();
             telemetry.clear();
-
-            isElementVisible = false;
         }
         skystoneTrackables.deactivate();
     }

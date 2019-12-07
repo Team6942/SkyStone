@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -50,7 +50,6 @@ public class SkystoneDriveTest extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         waitForStart();
         telemetry.log().clear();
         tfod.activate();
@@ -87,22 +86,46 @@ public class SkystoneDriveTest extends LinearOpMode {
 
         midShift.setPower(0);
 
-        backLeft.setTargetPosition(700);
-        backRight.setTargetPosition(700);
+        backLeft.setTargetPosition(400);
+        backRight.setTargetPosition(400);
 
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive()) {
-            backRight.setPower(.25);
-            backLeft.setPower(.25);
-        }
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
 
-        backRight.setPower(0);
-        backLeft.setPower(0);
+        while (backLeft.getCurrentPosition() < 700 && backRight.getCurrentPosition() < 700 && opModeIsActive())
+
 
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setTargetPosition(-200);
+        backRight.setTargetPosition(-200);
+
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        backRight.setPower(.25);
+        backLeft.setPower(.25);
+
+        while (opModeIsActive() && backLeft.isBusy() && backRight.isBusy()) {
+            telemetry.addData("Path2", "%7d :%7d",
+                    backLeft.getCurrentPosition(),
+                    backRight.getCurrentPosition());
+            telemetry.update();
+        }
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while (getYaw() >= -90) {
+            backLeft.setPower(.3);
+            backRight.setPower(-.3);
+            telemetry.addData("gyro",getYaw());
+            telemetry.update();
+        }
     }
     private void initNavx() {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
@@ -139,9 +162,6 @@ public class SkystoneDriveTest extends LinearOpMode {
     private float getYaw() {
         Orientation orientation = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return orientation.firstAngle;
-    }
-    private double degreesToPower(float degrees) {
-        return (degrees + 180) / (360) * (2) -1;
     }
 }
 
