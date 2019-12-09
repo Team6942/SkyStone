@@ -47,6 +47,8 @@ public class AutonomousMode extends LinearOpMode {
     // claw vars
     private boolean isSkystoneGrabbed = false;
     private float lastClawPosition;
+    // position vars
+    private int leftDisplacement;
 
     @Override
     public void runOpMode() {
@@ -78,9 +80,13 @@ public class AutonomousMode extends LinearOpMode {
         claw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         claw.setTargetPosition(-300);
         claw.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        claw.setPower(0.5);
+        pushServo.setPosition(90);
+
         setupVuforia();
 
         waitForStart();
+        claw.setPower(0);
         skystoneTrackables.activate();
         // move forward 900 ticks
         backRight.setPower(.35);
@@ -88,8 +94,8 @@ public class AutonomousMode extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(900);
-        backRight.setTargetPosition(900);
+        backLeft.setTargetPosition(950);
+        backRight.setTargetPosition(950);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -112,12 +118,13 @@ public class AutonomousMode extends LinearOpMode {
         }
         // center with the block
         if (getAngle() > .2) {
+            leftDisplacement = midShift.getCurrentPosition() - 180;
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            while (midShift.getCurrentPosition() > -170 && opModeIsActive()) {
+            while (midShift.getCurrentPosition() > -180 && opModeIsActive()) {
                 currentDrift = getYaw();
                 counterDriftPower = (currentDrift / 90) * 2;
                 backLeft.setPower(counterDriftPower);
@@ -125,6 +132,8 @@ public class AutonomousMode extends LinearOpMode {
             }
 
         } else if (getAngle() < -.1) {
+            leftDisplacement = midShift.getCurrentPosition() - 280;
+
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -137,6 +146,8 @@ public class AutonomousMode extends LinearOpMode {
                 backRight.setPower(-counterDriftPower);
             }
         } else {
+            leftDisplacement = midShift.getCurrentPosition() - 270;
+
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -152,27 +163,12 @@ public class AutonomousMode extends LinearOpMode {
         // move forward 200 ticks to get in grabbing range of the block
         midShift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         midShift.setPower(0);
-        backRight.setPower(.25);
-        backLeft.setPower(.25);
-
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(200);
-        backRight.setTargetPosition(200);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive()) {
-            currentDrift = getYaw();
-            counterDriftPower = (currentDrift / 90) * 2;
-            backLeft.setPower(counterDriftPower + .25);
-            backRight.setPower(-counterDriftPower + .25);
-        }
         // drop arm
         pushServo.setPosition(0);
         sleep(500);
         pushServo.setPosition(90);
         // close claw on skystone
+        sleep(1000);
         claw.setTargetPosition(0);
         claw.setPower(.7);
         lastClawPosition = claw.getCurrentPosition();
@@ -185,23 +181,65 @@ public class AutonomousMode extends LinearOpMode {
         claw.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         claw.setPower(0);
 
-        // back up 200 ticks
+//        while (getYaw() >= 10 && opModeIsActive()) {
+//            currentDrift = getYaw();
+//            counterDriftPower = (currentDrift / 90) * 2;
+//            backLeft.setPower(counterDriftPower + .25);
+//            backRight.setPower(-counterDriftPower + .25);
+//        }
+
+        // back up 400 ticks
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(-200);
-        backRight.setTargetPosition(-200);
+        backLeft.setTargetPosition(-600);
+        backRight.setTargetPosition(-600);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while (backLeft.isBusy() && backRight.isBusy() && opModeIsActive()) {
             currentDrift = getYaw();
             counterDriftPower = (currentDrift / 90) * 2;
-            backLeft.setPower(counterDriftPower + .25);
-            backRight.setPower(-counterDriftPower + .25);
+            backLeft.setPower(counterDriftPower + -.25);
+            backRight.setPower(-counterDriftPower + -.25);
         }
 
-        backRight.setPower(0);
         backLeft.setPower(0);
+        backRight.setPower(0);
+
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        midShift.setTargetPosition(-leftDisplacement + 1500);
+        midShift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        midShift.setPower(1);
+
+        while (midShift.isBusy() && opModeIsActive()) {
+            currentDrift = getYaw();
+            counterDriftPower = (currentDrift / 90) * 2;
+            backLeft.setPower(counterDriftPower);
+            backRight.setPower(-counterDriftPower);
+        }
+        midShift.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+        liftLeft.setPower(-.7);
+        liftRight.setPower(-.7);
+
+        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftLeft.setTargetPosition(-200);
+        liftRight.setTargetPosition(-200);
+        liftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive());
+
+        liftLeft.setPower(0);
+        liftRight.setPower(0);
     }
     private void setupVuforia() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
