@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
@@ -30,6 +31,8 @@ public class AutonomousMode extends LinearOpMode {
     private VuforiaTrackable stoneTarget;
     private OpenGLMatrix position = null;
     private Orientation rotation;
+    // sensors
+    ColorSensor colorSensor;
     // gyro objects
     private IntegratingGyroscope gyro;
     private NavxMicroNavigationSensor navxMicro;
@@ -54,6 +57,7 @@ public class AutonomousMode extends LinearOpMode {
     public void runOpMode() {
         initNavx();
         // get hardware objects
+        colorSensor = hardwareMap.colorSensor.get("colorSensor");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         midShift = hardwareMap.get(DcMotor.class,"midShift");
@@ -94,8 +98,8 @@ public class AutonomousMode extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(950);
-        backRight.setTargetPosition(950);
+        backLeft.setTargetPosition(1000);
+        backRight.setTargetPosition(1000);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -118,7 +122,6 @@ public class AutonomousMode extends LinearOpMode {
         }
         // center with the block
         if (getAngle() > .2) {
-            leftDisplacement = midShift.getCurrentPosition() - 180;
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -132,8 +135,6 @@ public class AutonomousMode extends LinearOpMode {
             }
 
         } else if (getAngle() < -.1) {
-            leftDisplacement = midShift.getCurrentPosition() - 280;
-
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -146,8 +147,6 @@ public class AutonomousMode extends LinearOpMode {
                 backRight.setPower(-counterDriftPower);
             }
         } else {
-            leftDisplacement = midShift.getCurrentPosition() - 270;
-
             midShift.setPower(-.45);
 
             midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -212,7 +211,59 @@ public class AutonomousMode extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        midShift.setTargetPosition(-leftDisplacement + 1500);
+        midShift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        midShift.setPower(0.5);
+
+        while (colorSensor.red() < 30 && opModeIsActive()) {
+            currentDrift = getYaw();
+            counterDriftPower = (currentDrift / 90) * 2;
+            backLeft.setPower(counterDriftPower);
+            backRight.setPower(-counterDriftPower);
+        }
+        midShift.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        sleep(1000);
+
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        midShift.setTargetPosition(1000);
+        midShift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        midShift.setPower(0.5);
+
+        while (midShift.isBusy() && opModeIsActive()) {
+            currentDrift = getYaw();
+            counterDriftPower = (currentDrift / 90) * 2;
+            backLeft.setPower(counterDriftPower);
+            backRight.setPower(-counterDriftPower);
+        }
+        midShift.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        liftLeft.setPower(-1);
+        liftRight.setPower(-1);
+
+        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (liftLeft.getCurrentPosition() > -400 && liftRight.getCurrentPosition() > -400 && opModeIsActive())
+
+        liftLeft.setPower(0);
+        liftRight.setPower(0);
+        sleep(1000);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        midShift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        midShift.setTargetPosition(1500);
         midShift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         midShift.setPower(1);
 
@@ -225,21 +276,6 @@ public class AutonomousMode extends LinearOpMode {
         midShift.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
-
-        liftLeft.setPower(-.7);
-        liftRight.setPower(-.7);
-
-        liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftLeft.setTargetPosition(-200);
-        liftRight.setTargetPosition(-200);
-        liftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive());
-
-        liftLeft.setPower(0);
-        liftRight.setPower(0);
     }
     private void setupVuforia() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
