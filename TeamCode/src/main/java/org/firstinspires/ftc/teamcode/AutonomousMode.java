@@ -68,7 +68,7 @@ public class AutonomousMode extends LinearOpMode {
 
         // set motor modes and directions
         liftLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        liftRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        liftRight.setDirection(DcMotorSimple.Direction.REVERSE);
         liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -98,8 +98,8 @@ public class AutonomousMode extends LinearOpMode {
 
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setTargetPosition(1000);
-        backRight.setTargetPosition(1000);
+        backLeft.setTargetPosition(950);
+        backRight.setTargetPosition(950);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -112,7 +112,7 @@ public class AutonomousMode extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        midShift.setPower(-.4);
+        midShift.setPower(-.39);
         // move left until a skystone is detected
         while (getAngle() == 0 && opModeIsActive()) {
             currentDrift = getYaw();
@@ -244,15 +244,17 @@ public class AutonomousMode extends LinearOpMode {
         midShift.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
-        liftLeft.setPower(-1);
-        liftRight.setPower(-1);
+        liftLeft.setPower(.5);
+        liftRight.setPower(.5);
 
         liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftLeft.setTargetPosition(400);
+        liftRight.setTargetPosition(400);
+        liftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (liftLeft.getCurrentPosition() > -400 && liftRight.getCurrentPosition() > -400 && opModeIsActive())
+        while (liftLeft.isBusy() && liftRight.isBusy() && opModeIsActive())
 
         liftLeft.setPower(0);
         liftRight.setPower(0);
