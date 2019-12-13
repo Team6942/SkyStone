@@ -23,27 +23,13 @@ public class AutoLiftTest extends LinearOpMode {
         liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
-        liftLeft.setTargetPosition(460);
-        liftRight.setTargetPosition(460);
-
-        liftLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         liftLeft.setPower(1);
         liftRight.setPower(1);
 
-        while (opModeIsActive() && liftLeft.isBusy() && liftRight.isBusy()) {
-            telemetry.addData("Path2",  "%7d :%7d",
-                    liftLeft.getCurrentPosition(),
-                    liftRight.getCurrentPosition());
-            telemetry.update();
-        }
+        sleep(1000);
 
         liftLeft.setPower(0);
         liftRight.setPower(0);
-
-        liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        sleep(1000);
     }
 }
